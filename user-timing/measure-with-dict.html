@@ -90,10 +90,10 @@
       self.performance.measure("wrongUsage1", {}, 12);
     }, "measure should throw a TypeError when passed an options object and an end time");
     assert_throws(new TypeError(), function() {
-      self.performance.measure("wrongUsage2", {'startTime': 2}, 12);
+      self.performance.measure("wrongUsage2", {'start': 2}, 12);
     }, "measure should throw a TypeError when passed an options object and an end time");
     assert_throws(new TypeError(), function() {
-      self.performance.measure("wrongUsage3", {'startTime': 2}, 'mark1');
+      self.performance.measure("wrongUsage3", {'start': 2}, 'mark1');
     }, "measure should throw a TypeError when passed an options object and an end mark");
   }, "measure should throw a TypeError when passed an invalid argument combination");
 </script>
