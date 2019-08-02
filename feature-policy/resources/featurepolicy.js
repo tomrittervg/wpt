@@ -253,6 +253,65 @@ function run_all_fp_tests_allow_all(
           '" can be disabled in cross-origin iframes using "allow" attribute.');
 }
 
+// This function runs all feature policy tests for a particular feature that
+// has a default policy of "*". This includes testing:
+// 1. Feature usage succeeds by default in the top level frame.
+// 2. Feature usage succeeds by default in a same-origin iframe.
+// 3. Feature usage fails when an allow attribute is specified on a
+//    same-origin iframe with a value of "feature-name 'none'".
+//
+// The same page which called this function will be loaded in the iframe in
+// order to test feature usage there. When this function is called in that
+// context it will simply run the feature and return a result back via
+// postMessage.
+//
+// Arguments:
+//     feature_name: The name of the feature as it should be specified in an
+//         allow attribute.
+//     error_name: If feature usage does not succeed, this is the string
+//         representation of the error that will be passed in the rejected
+//         promise.
+//     feature_promise_factory: A function which returns a promise which tests
+//         feature usage. If usage succeeds, the promise should resolve. If it
+//         fails, the promise should reject with an error that can be
+//         represented as a string.
+function run_all_fp_tests_allow_all_same_origin(
+    feature_name, error_name, feature_promise_factory) {
+  // This may be the version of the page loaded up in an iframe. If so, just
+  // post the result of running the feature promise back to the parent.
+  if (page_loaded_in_iframe()) {
+    test_feature_in_iframe(feature_name, feature_promise_factory);
+    return;
+  }
+
+  // Run the various tests.
+  // 1. Allowed in top-level frame.
+  promise_test(
+      () => feature_promise_factory(),
+      'Default "' + feature_name +
+          '" feature policy ["*"] allows the top-level document.');
+
+  // 2. Allowed in same-origin iframe.
+  const same_origin_frame_pathname = same_origin_url(feature_name);
+  async_test(
+      t => {
+        test_feature_availability_with_post_message_result(
+            t, same_origin_frame_pathname, '#OK');
+      },
+      'Default "' + feature_name +
+          '" feature policy ["*"] allows same-origin iframes.');
+
+  // 3. Blocked in same-origin iframe with "allow" attribute set to 'none'.
+  async_test(
+      t => {
+        test_feature_availability_with_post_message_result(
+            t, same_origin_frame_pathname, '#' + error_name,
+            feature_name + " 'none'");
+      },
+      'Feature policy "' + feature_name +
+          '" can be disabled in same-origin iframes using "allow" attribute.');
+}
+
 // This function tests that a given policy allows each feature for the correct
 // list of origins specified by the |expected_policy|.
 // Arguments:
