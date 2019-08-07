@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<meta charset=utf-8>
+<title>Web NFC: NFCReader option tests</title>
+<link rel="author" title="Intel" href="http://www.intel.com"/>
+<link rel="help" href="https://w3c.github.io/web-nfc/"/>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="resources/nfc-helpers.js"></script>
+<script>
+
+'use strict';
+
+const NFCReaderOptionTests =
+  [
+    {
+      desc: "Test that write and read data succeed when NFCReaderOptions'" +
+            " recordType is set to 'empty'.",
+      readOptions: {recordType: "empty"},
+      unacceptableReadOptions: {recordType: "json"},
+      message: createMessage([createRecord('empty', '')])
+    },
+    {
+      desc: "Test that write and read data succeed when NFCReaderOptions'" +
+            " recordType is set to 'json'.",
+      readOptions: {recordType: "json"},
+      unacceptableReadOptions: {recordType: "url"},
+      message: createMessage([createJsonRecord(test_json_data)])
+    },
+    {
+      desc: "Test that write and read data succeed when NFCReaderOptions'" +
+            " recordType is set to 'opaque'.",
+      readOptions: {recordType: "opaque"},
+      unacceptableReadOptions: {recordType: "json"},
+      message: createMessage([createOpaqueRecord(test_buffer_data)])
+    },
+    {
+      desc: "Test that write and read data succeed when NFCReaderOptions'" +
+            " recordType is set to 'text'.",
+      readOptions: {recordType: "text"},
+      unacceptableReadOptions: {recordType: "json"},
+      message: createMessage([createTextRecord(test_text_data)])
+    },
+    {
+      desc: "Test that write and read data succeed when NFCReaderOptions'" +
+            " recordType is set to 'url'.",
+      readOptions: {recordType: "url"},
+      unacceptableReadOptions: {recordType: "json"},
+      message: createMessage([createUrlRecord(test_url_data)])
+    },
+    {
+      desc: "Test that the url of NFCReaderOptions filters relevant data" +
+            " sources correctly.",
+      readOptions: {url: `${location.origin}/custom/path`},
+      unacceptableReadOptions: {url: `${location.origin}/custom/invalid`},
+      message: {url: `${location.origin}/custom/path/update`,
+          records: [createTextRecord(test_text_data)]}
+    },
+    {
+      desc: "Test that the mediaType of NFCReaderOptions filters relevant data" +
+            " sources correctly.",
+      readOptions: {mediaType: "application/octet-stream"},
+      unacceptableReadOptions: {mediaType: "application/json"},
+      message: createMessage([createOpaqueRecord(test_buffer_data)])
+    },
+    {
+      desc: "Test that the compatibility of NFCReaderOptions filters relevant data" +
+            " sources correctly.",
+      readOptions: {compatibility: "vendor"},
+      unacceptableReadOptions: {compatibility: "nfc-forum"},
+      message: createMessage([createTextRecord(test_text_data)])
+    }
+  ];
+
+for (let NFCReaderOptionTest of NFCReaderOptionTests) {
+  testNFCReaderOptions(
+    NFCReaderOptionTest.message,
+    NFCReaderOptionTest.readOptions,
+    NFCReaderOptionTest.unacceptableReadOptions,
+    NFCReaderOptionTest.desc
+  );
+}
+
+</script>
