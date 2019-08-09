@@ -97,15 +97,17 @@ class FakeBluetooth {
   // to simulate events that a device in the Central/Observer role would
   // receive as well as monitor the operations performed by the device in the
   // Central/Observer role.
-  // Calls sets LE as supported.
+  // Calls sets LE to |leSupported| or true if not defined.
   //
   // A "Central" object would allow its clients to receive advertising events
   // and initiate connections to peripherals i.e. operations of two roles
   // defined by the Bluetooth Spec: Observer and Central.
   // See Bluetooth 4.2 Vol 3 Part C 2.2.2 "Roles when Operating over an
   // LE Physical Transport".
-  async simulateCentral({state}) {
-    await this.setLESupported(true);
+  async simulateCentral({leSupported, state}) {
+    if (leSupported == undefined)
+      leSupported = true;
+    await this.setLESupported(leSupported);
 
     let {fakeCentral: fake_central_ptr} =
       await this.fake_bluetooth_ptr_.simulateCentral(
@@ -200,6 +202,10 @@ class FakeCentral {
         new bluetooth.mojom.ScanResult(scanResult));
 
     return this.fetchOrCreatePeripheral_(scanResult.deviceAddress);
+  }
+
+  async setState({state}) {
+    await this.fake_central_ptr_.setState(toMojoCentralState(state));
   }
 
   // Create a fake_peripheral object from the given address.
