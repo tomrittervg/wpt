@@ -820,3 +820,5 @@ WEB-PLATFORM.TEST:signed-exchange/resources/generate-test-sxgs.sh
 
 SET TIMEOUT: inert/inert-retargeting.tentative.html
 SET TIMEOUT: inert/inert-retargeting-iframe.tentative.html
+
+SET TIMEOUT: svg/animations/slider_switch.html

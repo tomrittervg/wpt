@@ -1,0 +1,40 @@
+
+<title>Correct onclick events for self implemented slider switch</title>
+<meta charset="utf-8">
+<link rel="help" href="https://svgwg.org/svg2-draft/single-page.html#interact-EventAttributes">
+<link rel="author" title="Edvard Thörnros" href="mailto:edvardt@opera.com">
+
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+
+<svg width="200" height="100" version="1.1">
+  <rect x="0" y="0" width="100" height="100" id="a" fill="#0AA">
+    <set begin="a.click" attributeName="display" to="none" fill="freeze"/>
+    <set begin="b.click" attributeName="display" to="block" fill="freeze"/>
+  </rect>
+  <rect x="100" y="0" width="100" height="100" id="b" display="none" fill="#A0A">
+    <set begin="a.click" attributeName="display" to="block" fill="freeze"/>
+    <set begin="b.click" attributeName="display" to="none" fill="freeze" href="#b"/>
+  </rect>
+</svg>
+
+<script>
+  let retries = 3;
+  let a = document.querySelector("#a");
+  let b = document.querySelector("#b");
+  let interval = setInterval(() => {
+    retries--;
+    if (retries == 0) {
+      clearInterval(interval);
+      test(function() {
+          assert_equals(window.getComputedStyle(a).display, "block");
+          assert_equals(window.getComputedStyle(b).display, "none");
+      });
+      return;
+    }
+    a.dispatchEvent(new Event("click"));
+    setTimeout(() => {
+      b.dispatchEvent(new Event("click"));
+    }, 20);
+  }, 20 * 2);
+</script>
